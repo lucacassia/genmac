@@ -1,9 +1,5 @@
 # Generalized Macdonald Functions
 
-<!-- NOTE: repo/library name is under review (currently a placeholder,
-     "gmplib", pending a rename away from the GNU MP / libgmp collision).
-     Swap the title, clone URL, and any badges once a final name is chosen. -->
-
 A [SageMath](https://www.sagemath.org/) library for computing **Generalized Macdonald functions** (GMPs) — simultaneous eigenfunctions of the horizontal generators of the elliptic Hall algebra acting on the Fock space of N-tuples of partitions (the level-N horizontal representation).
 
 These functions generalize the classical Macdonald P-functions (recovered at N = 1) and arise naturally in:
@@ -42,8 +38,8 @@ Both should agree; comparing them is a useful correctness check on a new install
 No additional installation is needed beyond cloning the repository:
 
 ```bash
-git clone https://github.com/lucacassia/gmplib
-cd gmplib
+git clone https://github.com/lucacassia/genmac
+cd genmac
 ```
 
 ---
@@ -51,7 +47,7 @@ cd gmplib
 ## Quick start
 
 ```python
-sage: load("gmplib.py")
+sage: load("genmac.py")
 
 # Compute the GMP for the bi-partition ((2,1), (1)) at N=2
 sage: G = GMP(([2,1], [1]))

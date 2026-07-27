@@ -67,7 +67,7 @@ Examples
 --------
 Compute the GMP for the bi-partition ((2,1), (1)) at N=2::
 
-    sage: load("gmplib.py")
+    sage: load("genmac.py")
     sage: poly = GMP(([2,1], [1]))
     sage: testEigenfunction(([2,1], [1]))
     True
