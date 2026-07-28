@@ -865,7 +865,6 @@ def alpha2_N(i,nu,lam):
     -------
     ring element
     """
-    N = len(nu)
     return PE( (1-q3)*(chi2d(nu[i],-1)-chi2d(lam,-1))*u[i]**-1*sum(u[j]*x2d(nu[j]) for j in range(i)) )
 
 
@@ -2041,10 +2040,9 @@ def pieriTest(lam):
     bool
     """
     N = len(lam)
-    X = generators(N, basis=s)
-    lhs = coercion_on_tensor(sum(X) * coercion_on_tensor(GMP(lam),[s]*N),[McdP]*N)
+    lhs = sum( coeff * tensor([McdP(mu[j]) for j in range(i)]+[e1mul(McdP(mu[i]))]+[McdP(mu[j]) for j in range(i+1,N)]) for mu,coeff in GMP(lam) for i in range(N))
     rhs = sum( sum(alpha_N(i,nu,lam)*psi_prime_PE(nu,lam[i])*GMP([lam[j] for j in range(i)]+[nu]+[lam[j] for j in range(i+1,N)]) for nu in Partition(lam[i]).up() ) for i in range(N))
-    return rhs==lhs
+    return lhs==rhs
 
 def pieriTestDual(nu):
     r"""
@@ -2059,119 +2057,9 @@ def pieriTestDual(nu):
     bool
     """
     N = len(nu)
-    X = generators(N)
-    lhs = skew_on_tensor(coercion_on_tensor(GMP(nu),[s]*N),e[1]((1-q)/(1-t)*sum(q3**(i)*X[i] for i in range(N))))
-    rhs = sum( prod( alpha2_N(i,nu,lam[i])*psi2_prime_PE(nu[i],lam[i]) for i in range(N)) * coercion_on_tensor(GMP(lam),[s]*N) for lam in pieri_set_minus(1,nu))
+    lhs = sum( coeff * tensor([McdP(mu[j]) for j in range(i)]+[q3**i * e1del(McdP(mu[i]))]+[McdP(mu[j]) for j in range(i+1,N)]) for mu,coeff in GMP(nu) for i in range(N))
+    rhs = sum( prod( alpha2_N(i,nu,lam[i])*psi2_prime_PE(nu[i],lam[i]) for i in range(N)) * GMP(lam) for lam in pieri_set_minus(1,nu))
     return lhs==rhs
-
-
-# ---------------------------------------------------------------------------
-# Output / formatting utilities
-# ---------------------------------------------------------------------------
-
-def part_to_str(mu):
-    r"""
-    Convert a partition to a Mathematica-style string ``{a, b, c}``.
-
-    Parameters
-    ----------
-    mu : Partition
-
-    Returns
-    -------
-    str
-        E.g. ``[2,1]`` -> ``"{2,1}"``, ``[]`` -> ``"{}"``.
-    """
-    if mu==[]:
-        return "{}"
-    ss = "{"
-    for k in mu:
-        ss += str(k)+","
-    return ss[:-1]+"}"
-
-def _part_to_str(mu):
-    r"""
-    Convert a multi-partition to a comma-separated string of ``{a,b}`` blocks.
-
-    Internal helper used by :func:`to_math` (no outer braces).
-
-    Parameters
-    ----------
-    mu : tuple or list of list
-
-    Returns
-    -------
-    str
-    """
-    res = ""
-    for k in mu:
-        if k == []:
-            res += "{},"
-        else:
-            res += "{"
-            for s in k:
-                res += str(s)+","
-            res = res[:-1] + "},"
-    return res[:-1]
-
-def mpart_to_str(mu):
-    r"""
-    Convert a multi-partition to a Mathematica-style string ``{{a,b},{c},...}``.
-
-    Parameters
-    ----------
-    mu : tuple or list of list
-
-    Returns
-    -------
-    str
-    """
-    res = "{"
-    for k in mu:
-        if k == []:
-            res += "{},"
-        else:
-            res += "{"
-            for s in k:
-                res += str(s)+","
-            res = res[:-1] + "},"
-    return res[:-1]+"}"
-
-def to_math(x):
-    r"""
-    Format a multi-symmetric function as a Mathematica-style sum string.
-
-    Parameters
-    ----------
-    x : element of ``Sym^{tensor N}``  (in the power-sum basis)
-
-    Returns
-    -------
-    str
-        A string like ``"coeff1*p[{2,1},{1}]+coeff2*p[{3},{}]+..."``.
-    """
-    res = ""
-    for mu,coeff in x:
-        res += str(factor(coeff))+"*p["+_part_to_str(mu)+"]+"
-    return res[:-1]
-
-def to_math_l(x):
-    r"""
-    Format the coefficients of a multi-symmetric function as a Mathematica list.
-
-    Parameters
-    ----------
-    x : element of ``Sym^{tensor N}``
-
-    Returns
-    -------
-    str
-        A Mathematica list string ``"{c1, c2, ...}"``.
-    """
-    res = ""
-    for mu,coeff in x:
-        res += str(factor(coeff))+","
-    return "{"+res[:-1]+"}"
 
 # ---------------------------------------------------------------------------
 # Magnus expansion
@@ -2189,33 +2077,13 @@ def e1mul(x):
 def e1del(x):
     r"""
     Implements the dual Pieri operator in a combinatorial way
-    Returns x.skew_by(e[1])
+    Returns (1-q)/(1-t) * x.skew_by(e[1])
     """
     if x.degree() <= 0:
         return McdP.zero()
     if x.parent() != McdP:
         x = coercion_safe(x,McdP)
-    return (1-t)/(1-q) * sum( psi2_prime_PE(nu,lam) * coeff * McdP(lam) for nu,coeff in x for lam in Partition(nu).down())
-
-def x_comb(sgn,k,x):
-    r"""
-    Implements the x^{sgn}_{k} operator (at level 1) in a combinatorial way
-    using commutation relations in the quantum toroidal algebra.
-    """
-    if x == 0:
-        return McdP.zero()
-    parent = x.parent()
-    if parent != McdP:
-        x = coercion_safe(x,McdP)
-    if k == 0:
-        res = sum( x2d(mu,sgn) * coeff * McdP(mu) for mu,coeff in x)
-    elif k > 0:
-        res = ( e1del(x_comb(sgn,k-1,x)) - x_comb(sgn,k-1,e1del(x)) ) / (1-q2**sgn)
-    else:
-        res = ( e1mul(x_comb(sgn,k+1,x)) - x_comb(sgn,k+1,e1mul(x)) ) / (1-q1**sgn)
-    if parent != McdP:
-        res = coercion_safe(res,parent)
-    return res
+    return sum( psi2_prime_PE(nu,lam) * coeff * McdP(lam) for nu,coeff in x for lam in Partition(nu).down())
 
 # ---------------------------------------------------------------------------
 # Path enumeration

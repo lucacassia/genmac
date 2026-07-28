@@ -110,7 +110,6 @@ Polynomial-time implementations of the vertex-operator action, built directly fr
 | `x_fast_on_tensor(i, sgn, k, x)` / `psi_fast_on_tensor(i, k, x)` | Apply the corresponding single-copy operator to tensor factor `i`, identity elsewhere |
 | `LAM_fast(i, sgn, k, x)` | Mode-$k$ component of $\Lambda^{(i)}(z)$ / $\Lambda^{*(i)}(z)$, the coproduct pieces of $x^+(z)$ / $x^-(z)$ |
 | `drinfeld(sgn, k, x)` | Level-$N$ implementation of the Drinfeld currents, `sum_i u_i^{sgn} * LAM_fast(i,sgn,k,x)` |
-| `x_comb(sgn, k, x)` | Reference recursive definition of `x_fast` via commutators — exponential-time, useful for cross-checking `x_fast` on small cases |
 | `mMcdP(lam)` | $P_{\lambda^{(0)}} \otimes \cdots \otimes P_{\lambda^{(N-1)}}$, the pure tensor of ordinary Macdonald P-functions |
 
 ### Pieri rules and elementary coefficients
@@ -177,14 +176,6 @@ Polynomial-time implementations of the vertex-operator action, built directly fr
 | `evalArg(x, arg)` / `evaluate_on_tensor(x, arg)` / `diag_plethysm(x, arg_l)` | Plethystic evaluation, single-copy / factor-wise |
 | `vectors_with_int(N, k)` / `generate_combinations(N, d, min_val)` | N-tuples of non-negative integers summing to a target |
 | `is3d(mu)` / `is_reduced(lam)` / `subpart(lam)` | Plane-partition check / trailing-component check / sub-diagrams of a partition |
-
-### Output formatting
-
-| Function | Description |
-|----------|-------------|
-| `to_math(x)` | Format a multi-symmetric function (power-sum basis) as a Mathematica-style sum string |
-| `to_math_l(x)` | Format the coefficients of a multi-symmetric function as a Mathematica list |
-| `part_to_str(mu)` / `mpart_to_str(mu)` | Mathematica-style string for a partition / multi-partition |
 
 ### Cache management
 
